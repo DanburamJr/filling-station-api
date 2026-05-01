@@ -1,4 +1,4 @@
-import express from "express";
+import sequelize from "../src/config/database.js";
 
 import authRoutes from "./auth.routes.js";
 import stationRoutes from "./station.routes.js";

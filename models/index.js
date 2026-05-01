@@ -1,4 +1,4 @@
-import sequelize from "../config/database.js";
+import sequelize from "../src/config/database.js";
 import initUserModel from "./user.model.js";
 import initStationModel from "./station.model.js";
 import initProductModel from "./product.model.js";
