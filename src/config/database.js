@@ -1,7 +1,7 @@
-const { Sequelize } = require('sequelize');
+import { Sequelize } from "sequelize";
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
+  dialect: "postgres",
   dialectOptions: {
     ssl: {
       require: true,
@@ -10,4 +10,4 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   }
 });
 
-module.exports = sequelize;
+export default sequelize;
