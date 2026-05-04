@@ -5,26 +5,38 @@ import app from "./app.js";
 import sequelize from "./src/config/database.js";
 
 const PORT = process.env.PORT || 5000;
-const REQUIRED_DB_ENV_VARS = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"];
 
 function validateDatabaseEnv() {
-  const missingVars = REQUIRED_DB_ENV_VARS.filter((key) => !process.env[key]?.trim());
-
-  if (missingVars.length > 0) {
-    console.error("Database configuration error: missing required environment variables.");
-    console.error(`Missing: ${missingVars.join(", ")}`);
+  if (!process.env.DATABASE_URL?.trim()) {
+    console.error("Database configuration error: missing required environment variable.");
+    console.error("Missing: DATABASE_URL");
     console.error("Update your .env file and restart the application.");
     process.exit(1);
   }
 }
 
+function validateJwtEnv() {
+  if (process.env.JWT_SECRET?.trim()) {
+    return;
+  }
+  const msg =
+    "JWT_SECRET is not set. Auth routes (login/register) will fail until you set it in Railway Variables or .env.";
+  if (process.env.NODE_ENV === "production") {
+    console.error("Auth configuration error: missing required environment variable.");
+    console.error("Missing: JWT_SECRET");
+    console.error(msg);
+    process.exit(1);
+  }
+  console.warn(`Warning: ${msg}`);
+}
+
 function logConnectionFailure(error) {
   console.error("Failed to connect to PostgreSQL database.");
   console.error("Possible causes:");
-  console.error("- Invalid DB_HOST/DB_PORT (database host unreachable)");
-  console.error("- Incorrect DB_USER or DB_PASSWORD");
+  console.error("- Invalid DATABASE_URL (malformed connection string)");
+  console.error("- Incorrect credentials in DATABASE_URL");
   console.error("- PostgreSQL service is not running");
-  console.error("- Database name does not exist or user lacks permissions");
+  console.error("- Database does not exist or user lacks permissions");
 
   if (error?.original?.code) {
     console.error(`PostgreSQL error code: ${error.original.code}`);
@@ -34,6 +46,7 @@ function logConnectionFailure(error) {
 
 async function bootstrap() {
   validateDatabaseEnv();
+  validateJwtEnv();
 
   try {
     await sequelize.authenticate();
